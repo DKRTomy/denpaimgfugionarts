@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>画像連結ツール (2枚・3枚対応)</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <style>
+        /* Custom styles for better appearance */
+        body {
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+        }
+        .preview-container img {
+            max-width: 100%;
+            height: auto;
+            /* Adjusted max-height for potentially smaller previews */
+            max-height: 160px;
+            object-fit: contain;
+            border-radius: 0.375rem; /* rounded-md */
+            border: 1px solid #e5e7eb; /* border-gray-200 */
+        }
+        .preview-container {
+             /* Adjusted height */
+            height: 10rem; /* h-40 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f9fafb; /* bg-gray-50 */
+            border-radius: 0.375rem; /* rounded-md */
+        }
+        .upload-box {
+            border: 2px dashed #d1d5db; /* border-gray-300 */
+            border-radius: 0.5rem; /* rounded-lg */
+            padding: 1.5rem; /* Reduced padding */
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .upload-box:hover {
+            background-color: #f3f4f6; /* bg-gray-100 */
+        }
+        label {
+            cursor: pointer;
+            display: block;
+            text-sm font-medium text-gray-700 mb-2; /* Applied Tailwind classes directly */
+        }
+         /* Style for the download button */
+        #downloadLink {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: #10b981; /* bg-emerald-500 */
+            color: white;
+            font-weight: 600; /* font-semibold */
+            border-radius: 0.375rem; /* rounded-md */
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            text-align: center;
+        }
+        #downloadLink:hover {
+            background-color: #059669; /* hover:bg-emerald-600 */
+        }
+        /* Ensure icons are vertically aligned */
+        .lucide {
+             vertical-align: middle;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@latest/font/Lucide.css">
+    <style>
+      @font-face {
+        font-family: 'LucideIcons';
+        src: url(https://cdn.jsdelivr.net/npm/lucide-static@latest/font/Lucide.ttf) format('truetype');
+      }
+      .lucide {
+        font-family: 'LucideIcons';
+        font-size: 1.25rem; /* Adjust icon size as needed */
+        line-height: 1;
+        display: inline-block;
+      }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+    <div class="max-w-5xl mx-auto bg-white p-6 md:p-8 rounded-lg shadow-md">
+        <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">画像連結ツール (2枚・3枚対応)</h1>
+        <p class="text-center text-gray-600 mb-6 text-sm">
+            2枚の画像を選択すると横に連結します。3枚目を選択すると、左に縦2枚、右に1枚のレイアウトで連結します。
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div>
+                <label for="imageInput1">画像1 (左 / 左上)</label>
+                <div class="upload-box" onclick="document.getElementById('imageInput1').click()">
+                    <input type="file" id="imageInput1" accept="image/*" class="hidden" onchange="previewImage(this, 'preview1', 'imageName1')">
+                    <span class="lucide text-gray-400 mb-1">&#xe527;</span> <p class="text-gray-500 text-xs">クリックして選択</p>
+                    <p id="imageName1" class="text-xs text-gray-500 mt-1 truncate"></p>
+                </div>
+                <div class="mt-2 preview-container">
+                   <img id="preview1" src="https://placehold.co/200x160/e2e8f0/cbd5e0?text=プレビュー1" alt="画像1 プレビュー" class="hidden">
+                   <span id="placeholder1" class="text-gray-400 text-sm">プレビュー1</span>
+                </div>
+            </div>
+
+            <div>
+                <label for="imageInput2">画像2 (右 / 左下)</label>
+                 <div class="upload-box" onclick="document.getElementById('imageInput2').click()">
+                    <input type="file" id="imageInput2" accept="image/*" class="hidden" onchange="previewImage(this, 'preview2', 'imageName2')">
+                    <span class="lucide text-gray-400 mb-1">&#xe527;</span> <p class="text-gray-500 text-xs">クリックして選択</p>
+                    <p id="imageName2" class="text-xs text-gray-500 mt-1 truncate"></p>
+                </div>
+                <div class="mt-2 preview-container">
+                    <img id="preview2" src="https://placehold.co/200x160/e2e8f0/cbd5e0?text=プレビュー2" alt="画像2 プレビュー" class="hidden">
+                    <span id="placeholder2" class="text-gray-400 text-sm">プレビュー2</span>
+                </div>
+            </div>
+
+             <div>
+                <label for="imageInput3">画像3 (右 - 3枚時のみ)</label>
+                 <div class="upload-box" onclick="document.getElementById('imageInput3').click()">
+                    <input type="file" id="imageInput3" accept="image/*" class="hidden" onchange="previewImage(this, 'preview3', 'imageName3')">
+                    <span class="lucide text-gray-400 mb-1">&#xe527;</span> <p class="text-gray-500 text-xs">クリックして選択 (任意)</p>
+                    <p id="imageName3" class="text-xs text-gray-500 mt-1 truncate"></p>
+                </div>
+                <div class="mt-2 preview-container">
+                    <img id="preview3" src="https://placehold.co/200x160/e2e8f0/cbd5e0?text=プレビュー3" alt="画像3 プレビュー" class="hidden">
+                    <span id="placeholder3" class="text-gray-400 text-sm">プレビュー3 (任意)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mb-6">
+            <button id="combineButton" class="py-3 px-6 bg-blue-600 text-white font-semibold rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed" onclick="combineImages()" disabled>
+                <span class="lucide align-middle mr-1">&#xe15a;</span> 画像を連結
+            </button>
+        </div>
+
+        <canvas id="canvas" style="display: none;"></canvas>
+
+        <div id="resultContainer" class="text-center mt-4" style="display: none;">
+             <p class="text-lg font-medium text-gray-700 mb-3">連結が完了しました！</p>
+            <a id="downloadLink" href="#" download="combined_image.png">
+                 <span class="lucide align-middle mr-1">&#xe182;</span> 画像をダウンロード
+            </a>
+        </div>
+         <div id="messageBox" class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md text-center" style="display: none;">
+            <p id="messageText"></p>
+        </div>
+    </div>
+
+    <script>
+        // Get references to DOM elements
+        const imageInput1 = document.getElementById('imageInput1');
+        const imageInput2 = document.getElementById('imageInput2');
+        const imageInput3 = document.getElementById('imageInput3'); // Added input 3
+        const preview1 = document.getElementById('preview1');
+        const preview2 = document.getElementById('preview2');
+        const preview3 = document.getElementById('preview3'); // Added preview 3
+        const placeholder1 = document.getElementById('placeholder1');
+        const placeholder2 = document.getElementById('placeholder2');
+        const placeholder3 = document.getElementById('placeholder3'); // Added placeholder 3
+        const imageName1 = document.getElementById('imageName1');
+        const imageName2 = document.getElementById('imageName2');
+        const imageName3 = document.getElementById('imageName3'); // Added name display 3
+        const combineButton = document.getElementById('combineButton');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const downloadLink = document.getElementById('downloadLink');
+        const resultContainer = document.getElementById('resultContainer');
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+
+        // Variables to hold image objects and filenames
+        let img1 = null;
+        let img2 = null;
+        let img3 = null; // Added img3
+        let file1Name = '';
+        let file2Name = '';
+        let file3Name = ''; // Added file3Name
+
+        // Function to display image preview
+        function previewImage(input, previewId, nameId) {
+            const file = input.files[0];
+            const preview = document.getElementById(previewId);
+            const placeholder = document.getElementById(previewId.replace('preview', 'placeholder'));
+            const nameDisplay = document.getElementById(nameId);
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = () => {
+                    // Store image object and filename based on input ID
+                    if (input.id === 'imageInput1') {
+                        img1 = img;
+                        file1Name = file ? file.name : '';
+                    } else if (input.id === 'imageInput2') {
+                        img2 = img;
+                        file2Name = file ? file.name : '';
+                    } else if (input.id === 'imageInput3') {
+                        img3 = img; // Store image 3
+                        file3Name = file ? file.name : ''; // Store filename 3
+                    }
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden'); // Show preview
+                    if(placeholder) placeholder.classList.add('hidden'); // Hide placeholder
+                    nameDisplay.textContent = file ? file.name : ''; // Show filename
+                    checkEnableCombineButton(); // Check if button should be enabled
+                };
+                img.onerror = () => {
+                    showMessage(`画像の読み込みエラー: ${file ? file.name : '不明なファイル'}`);
+                    resetInput(input, preview, placeholder, nameDisplay);
+                }
+                img.src = e.target.result;
+            }
+
+            reader.onerror = () => {
+                 showMessage(`ファイルの読み込みエラー: ${file ? file.name : '不明なファイル'}`);
+                 resetInput(input, preview, placeholder, nameDisplay);
+            }
+
+            if (file) {
+                reader.readAsDataURL(file);
+            } else {
+                // Reset if no file is selected (e.g., user cancels selection)
+                resetInput(input, preview, placeholder, nameDisplay);
+                 // If image 3 is deselected, clear img3 and file3Name
+                if (input.id === 'imageInput3') {
+                    img3 = null;
+                    file3Name = '';
+                }
+            }
+        }
+
+        // Function to reset an input and its preview
+        function resetInput(input, preview, placeholder, nameDisplay) {
+             const inputId = input.id;
+             if (inputId === 'imageInput1') {
+                img1 = null;
+                file1Name = '';
+            } else if (inputId === 'imageInput2') {
+                img2 = null;
+                file2Name = '';
+            } else if (inputId === 'imageInput3') {
+                img3 = null; // Reset img3
+                file3Name = ''; // Reset file3Name
+            }
+
+            // Determine placeholder text based on input ID
+            let placeholderText = 'プレビュー';
+            if (inputId === 'imageInput1') placeholderText = 'プレビュー1';
+            else if (inputId === 'imageInput2') placeholderText = 'プレビュー2';
+            else if (inputId === 'imageInput3') placeholderText = 'プレビュー3 (任意)';
+
+            preview.src = `https://placehold.co/200x160/e2e8f0/cbd5e0?text=${encodeURIComponent(placeholderText)}`; // Reset placeholder image
+            preview.classList.add('hidden');
+            if(placeholder) placeholder.classList.remove('hidden');
+            nameDisplay.textContent = '';
+            input.value = ''; // Clear the file input
+            checkEnableCombineButton();
+            resultContainer.style.display = 'none'; // Hide download link
+            hideMessage();
+        }
+
+        // Function to check if the combine button should be enabled
+        // Enable if image 1 and image 2 are selected
+        function checkEnableCombineButton() {
+            combineButton.disabled = !(img1 && img2);
+        }
+
+        // Function to show messages
+        function showMessage(msg) {
+            messageText.textContent = msg;
+            messageBox.style.display = 'block';
+        }
+
+        // Function to hide messages
+        function hideMessage() {
+            messageBox.style.display = 'none';
+            messageText.textContent = '';
+        }
+
+        // Function to combine images
+        function combineImages() {
+            // Basic check: Need at least image 1 and 2
+            if (!img1 || !img2) {
+                showMessage("少なくとも画像1と画像2を選択してください。");
+                return;
+            }
+
+            hideMessage(); // Clear previous messages
+
+            // Determine mode based on whether img3 exists
+            const isThreeImageMode = img3 !== null;
+
+            try {
+                let canvasWidth = 0;
+                let canvasHeight = 0;
+                let finalFilenameBase = '';
+
+                // --- Clear canvas before drawing ---
+                // We need dimensions first, so clear is done after calculations
+
+                if (isThreeImageMode) {
+                    // --- 3-Image Mode ---
+                    if (!file3Name) {
+                         showMessage("3枚目の画像のファイル名が見つかりません。再度選択してください。");
+                         return;
+                    }
+
+                    // Image 1 dimensions (base)
+                    const w1 = img1.naturalWidth;
+                    const h1 = img1.naturalHeight;
+
+                    // Image 2 dimensions (scaled to width of image 1)
+                    const w2 = w1; // Match width
+                    const h2 = (img2.naturalHeight * w1) / img2.naturalWidth;
+
+                    // Combined height of left stack
+                    const totalLeftHeight = h1 + h2;
+
+                    // Image 3 dimensions (scaled to height of left stack)
+                    const h3 = totalLeftHeight; // Match height
+                    const w3 = (img3.naturalWidth * totalLeftHeight) / img3.naturalHeight;
+
+                    // Set canvas dimensions
+                    canvasWidth = w1 + w3;
+                    canvasHeight = totalLeftHeight;
+                    canvas.width = canvasWidth;
+                    canvas.height = canvasHeight;
+
+                    // Clear canvas
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // Draw images
+                    ctx.drawImage(img1, 0, 0, w1, h1);       // Image 1 (top-left)
+                    ctx.drawImage(img2, 0, h1, w2, h2);       // Image 2 (bottom-left)
+                    ctx.drawImage(img3, w1, 0, w3, h3);       // Image 3 (right)
+
+                    // Set filename base from image 3
+                    finalFilenameBase = file3Name;
+
+                } else {
+                    // --- 2-Image Mode (Existing Logic) ---
+                     if (!file2Name) {
+                         showMessage("2枚目の画像のファイル名が見つかりません。再度選択してください。");
+                         return;
+                    }
+
+                    // Image 1 dimensions
+                    const h1 = img1.naturalHeight;
+                    const w1 = img1.naturalWidth;
+
+                    // Image 2 dimensions (scaled to height of image 1)
+                    const h2 = h1; // Match height
+                    const w2 = (img2.naturalWidth * h1) / img2.naturalHeight;
+
+                    // Set canvas dimensions
+                    canvasWidth = w1 + w2;
+                    canvasHeight = h1;
+                    canvas.width = canvasWidth;
+                    canvas.height = canvasHeight;
+
+                     // Clear canvas
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // Draw images
+                    ctx.drawImage(img1, 0, 0, w1, h1); // Image 1 (left)
+                    ctx.drawImage(img2, w1, 0, w2, h2); // Image 2 (right)
+
+                    // Set filename base from image 2
+                    finalFilenameBase = file2Name;
+                }
+
+                // --- Generate Download Link ---
+                const baseName = finalFilenameBase.substring(0, finalFilenameBase.lastIndexOf('.')) || finalFilenameBase;
+                const downloadFilename = `${baseName}_紹介画像.png`;
+
+                // Get data URL (PNG format)
+                const dataURL = canvas.toDataURL('image/png');
+
+                // Set download link attributes
+                downloadLink.href = dataURL;
+                downloadLink.download = downloadFilename;
+
+                // Show the result container
+                resultContainer.style.display = 'block';
+
+            } catch (error) {
+                 console.error("Error combining images:", error);
+                 showMessage(`画像の結合中にエラーが発生しました: ${error.message}`);
+                 resultContainer.style.display = 'none'; // Hide result on error
+            }
+        }
+
+        // Initial check for the combine button state
+        checkEnableCombineButton();
+    </script>
+</body>
+</html>
